@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+.env
+
+# Generated data — re-rendered by generate_data.py / on the fly in train.py
+data/
+*.csv
+*.parquet
+*.h5
+*.pkl
+*.npy
+*.npz
+
+# Models / training artifacts
+models/
+*.pt
+*.pth
+*.onnx
+*.joblib
+mlruns/
+wandb/
+checkpoints/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Journals (per ~/.claude/CLAUDE.md — never commit raw command output)
+journal-*.md
+
+# Secrets
+.env.local
+*.key
+secrets.json
+
+# But DO commit dashboard figures and final metrics — they're the showcase.
+!assets/
+!assets/*.png
+!results/
+!results/metrics.json
