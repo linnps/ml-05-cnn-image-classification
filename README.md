@@ -14,6 +14,10 @@
 
 ---
 
+<p align="center">
+  <a href="https://linnps.github.io/ml-05-cnn-image-classification/"><img src="https://img.shields.io/badge/View_Live_Dashboard-0E2841?style=for-the-badge&amp;logo=githubpages&amp;logoColor=white" alt="View live dashboard"></a>
+</p>
+
 ## At a glance
 
 > Render a 3-class shape dataset from scratch with PIL — circles, squares, triangles, randomly placed and lightly rotated on noisy dark backgrounds — then train a small CNN end-to-end in PyTorch. Watch loss collapse and test accuracy climb toward 100% in a handful of epochs.
