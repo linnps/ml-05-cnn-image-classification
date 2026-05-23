@@ -18,32 +18,12 @@
 
 > Render a 3-class shape dataset from scratch with PIL — circles, squares, triangles, randomly placed and lightly rotated on noisy dark backgrounds — then train a small CNN end-to-end in PyTorch. Watch loss collapse and test accuracy climb toward 100% in a handful of epochs.
 
-<table>
-<tr>
-<td align="center" width="33%">
-<sub>Final test accuracy</sub><br>
-<b style="font-size:1.6em; color:#3B6EA8;">99.6%</b><br>
-<sub>2 wrong out of 450</sub>
-</td>
-<td align="center" width="33%">
-<sub>Epochs to ≥95%</sub><br>
-<b style="font-size:1.6em; color:#3B6EA8;">5</b><br>
-<sub>(test accuracy crosses 95% at epoch 5)</sub>
-</td>
-<td align="center" width="33%">
-<sub>Train–test gap</sub><br>
-<b style="font-size:1.6em; color:#7A7A7A;">+0.4%</b><br>
-<sub>train 100% — test 99.6% (mild)</sub>
-</td>
-</tr>
-</table>
-
-| Epoch | Train loss | Test loss | Train acc | Test acc |
-|---:|---:|---:|---:|---:|
-| 1 | 1.060 | 0.877 | 42.5% | 60.9% |
-| 5 | 0.124 | 0.097 | 96.5% | 97.3% |
-| 10 | 0.007 | 0.014 | 99.9% | 99.8% |
-| 15 | 0.001 | 0.006 | 100.0% | **99.6%** |
+<p align="center">
+  <img src="https://img.shields.io/badge/Final_test_accuracy-99.6%25-3B6EA8?style=for-the-badge" alt="Final test accuracy 99.6%">
+  <img src="https://img.shields.io/badge/Final_train_accuracy-100%25-3B6EA8?style=for-the-badge" alt="Final train accuracy 100%">
+  <img src="https://img.shields.io/badge/Test_errors-2_/_450-C04040?style=for-the-badge" alt="Test errors 2 / 450">
+</p>
+<p align="center"><sub>Test accuracy &rarr; <b>99.6%</b> (448 / 450 correct)&nbsp;·&nbsp;Train accuracy &rarr; <b>100%</b> at epoch 15&nbsp;·&nbsp;Only <b>2</b> test images misclassified out of 450</sub></p>
 
 <sub>**Headline finding:** a small CNN (three conv layers, no batch norm, no augmentation) is enough to push past 99% on this task in well under a minute on CPU. The two test images that *do* get misclassified are visually ambiguous (a small square at the edge looks rounded; a circle near a square pose) — exactly the kind of error we'd hope a working model leaves behind.</sub>
 
@@ -129,6 +109,43 @@ The model is trained on the 2 400-image training set and evaluated on the 450-im
 ---
 
 ## Dashboard
+
+### Training scorecard
+
+<table>
+<tr>
+  <th align="left">Checkpoint</th>
+  <th>Train acc</th>
+  <th>Test acc</th>
+  <th>Test loss</th>
+</tr>
+<tr>
+  <td><b>Epoch 1</b></td>
+  <td align="center"><img src="https://img.shields.io/badge/42.5%25-7A7A7A?style=flat-square" alt="42.5%"></td>
+  <td align="center"><img src="https://img.shields.io/badge/60.9%25-7A7A7A?style=flat-square" alt="60.9%"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.877-7A7A7A?style=flat-square" alt="0.877"></td>
+</tr>
+<tr>
+  <td><b>Epoch 5</b></td>
+  <td align="center"><img src="https://img.shields.io/badge/96.5%25-7A7A7A?style=flat-square" alt="96.5%"></td>
+  <td align="center"><img src="https://img.shields.io/badge/97.3%25-7A7A7A?style=flat-square" alt="97.3%"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.097-7A7A7A?style=flat-square" alt="0.097"></td>
+</tr>
+<tr>
+  <td><b>Epoch 10</b></td>
+  <td align="center"><img src="https://img.shields.io/badge/99.9%25-7A7A7A?style=flat-square" alt="99.9%"></td>
+  <td align="center"><img src="https://img.shields.io/badge/99.8%25-7A7A7A?style=flat-square" alt="99.8%"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.0135-7A7A7A?style=flat-square" alt="0.0135"></td>
+</tr>
+<tr>
+  <td><b>Epoch 15</b> <sub>(final)</sub></td>
+  <td align="center"><img src="https://img.shields.io/badge/100%25-3B6EA8?style=flat-square" alt="100%"></td>
+  <td align="center"><img src="https://img.shields.io/badge/99.6%25-3B6EA8?style=flat-square" alt="99.6%"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.0060-3B6EA8?style=flat-square" alt="0.0060"></td>
+</tr>
+</table>
+
+<sub>Values from `results/metrics.json` · blue = final epoch · gray = intermediate checkpoints · test errors: 2 wrong out of 450</sub>
 
 ### 1. The dataset — synthetic shapes
 
