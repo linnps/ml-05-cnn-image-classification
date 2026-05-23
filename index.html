@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML 05 · CNN Image Classification — Dashboard</title>
+<style>
+  :root{
+    --navy:#0E2841; --navy2:#14385B; --navy3:#1C4A75;
+    --orange:#ED7D31; --orange2:#F4A26B;
+    --blue:#9DC3E6; --bg:#EEF1F4; --card:#FFFFFF;
+    --text:#1A2733; --muted:#6B7B8C; --line:#E2E7EC;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+  /* ---- sidebar ---- */
+  .sidebar{width:210px;flex-shrink:0;background:var(--navy);color:#fff;
+           display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+  .brand{padding:22px 20px 18px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .brand .n{font-size:12px;letter-spacing:2px;color:var(--orange);font-weight:700}
+  .brand .t{font-size:17px;font-weight:700;margin-top:4px;line-height:1.25}
+  nav{padding:10px 0;flex:1}
+  nav a{display:flex;align-items:center;gap:10px;padding:13px 20px;color:#C5D2DE;
+        cursor:pointer;font-size:14px;font-weight:600;border-left:3px solid transparent;
+        user-select:none;transition:background .12s}
+  nav a:hover{background:rgba(255,255,255,.05);color:#fff}
+  nav a.active{background:var(--orange);color:#fff;border-left-color:#fff}
+  nav a .ic{font-size:16px;width:18px;text-align:center}
+  .side-foot{padding:16px 20px;font-size:11px;color:#7E93A8;border-top:1px solid rgba(255,255,255,.08)}
+  .side-foot a{color:var(--blue);text-decoration:none}
+  /* ---- main ---- */
+  .main{flex:1;padding:26px 30px 50px 30px;max-width:1180px}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;
+          border-bottom:2px solid var(--line);padding-bottom:16px;margin-bottom:22px}
+  .topbar h1{font-size:25px;font-weight:800;color:var(--navy)}
+  .topbar .sub{font-size:13px;color:var(--muted);margin-top:4px}
+  .topbar .meta{font-size:12px;color:var(--muted);text-align:right;line-height:1.7}
+  .topbar .meta b{color:var(--navy)}
+  /* ---- panels ---- */
+  .panel{display:none;animation:fade .2s ease}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .panel h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);
+            margin:26px 0 12px 0;font-weight:700}
+  .panel h2:first-child{margin-top:0}
+  /* ---- KPI cards ---- */
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .kpi{border-radius:8px;padding:18px 16px;text-align:center;color:#fff;
+       box-shadow:0 1px 3px rgba(14,40,65,.12)}
+  .kpi .v{font-size:30px;font-weight:800;line-height:1}
+  .kpi .l{font-size:12.5px;font-weight:600;margin-top:8px;opacity:.92}
+  .kpi .s{font-size:11px;margin-top:5px;opacity:.8}
+  .kpi.navy{background:var(--navy)} .kpi.orange{background:var(--orange)}
+  .kpi.blue{background:var(--blue);color:var(--navy)}
+  /* ---- cards ---- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;
+        margin-top:14px;box-shadow:0 1px 2px rgba(14,40,65,.05)}
+  .card h3{font-size:15px;color:var(--navy);font-weight:700}
+  .card .cap{font-size:12.5px;color:var(--muted);margin:4px 0 10px 0}
+  .card img{width:100%;border:1px solid var(--line);border-radius:5px;margin-top:6px}
+  /* ---- table ---- */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  th,td{padding:9px 10px;text-align:center;border-bottom:1px solid var(--line)}
+  th{background:var(--navy);color:#fff;font-weight:600;font-size:12.5px}
+  th:first-child,td:first-child{text-align:left}
+  tbody tr:nth-child(even){background:#F6F8FA}
+  .pill{display:inline-block;padding:3px 9px;border-radius:11px;font-weight:700;font-size:12.5px;color:#fff}
+  .p-navy{background:var(--navy)} .p-orange{background:var(--orange)}
+  .p-blue{background:var(--blue);color:var(--navy)} .p-gray{background:#9AA8B5}
+  .legend{font-size:12px;color:var(--muted);margin-top:9px}
+  .note{background:#FBF3EC;border-left:3px solid var(--orange);padding:11px 14px;border-radius:0 6px 6px 0;
+        font-size:13.5px;line-height:1.6;margin-top:14px}
+  pre{background:var(--navy);color:#E7EEF5;padding:14px 16px;border-radius:7px;overflow:auto;
+      font-size:12.5px;line-height:1.6;margin-top:10px;font-family:"SF Mono",Consolas,monospace}
+  pre .c{color:#7E9CB8}
+  code{background:#E7ECF1;padding:1px 5px;border-radius:3px;font-size:12.5px;
+       font-family:"SF Mono",Consolas,monospace}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}
+    .sidebar{width:64px}.brand .t,nav a span.tx,.side-foot{display:none}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand"><div class="n">ML · 05</div><div class="t">CNN Image Classification</div></div>
+  <nav>
+    <a data-p="overview" class="active"><span class="ic">▣</span><span class="tx">Overview</span></a>
+    <a data-p="charts"><span class="ic">▤</span><span class="tx">Charts</span></a>
+    <a data-p="validation"><span class="ic">✓</span><span class="tx">Validation</span></a>
+    <a data-p="reproduce"><span class="ic">⚙</span><span class="tx">Reproduce</span></a>
+  </nav>
+  <div class="side-foot">Part of a 10-project ML portfolio<br><a href="https://github.com/linnps/ml-05-cnn-image-classification">View on GitHub →</a></div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1>CNN Image Classification — Shapes from Scratch in PyTorch</h1>
+      <div class="sub">3-class shape recognition (circle / square / triangle) · synthetic dataset · end-to-end CNN training</div>
+    </div>
+    <div class="meta">DATASET: <b>2,400 train · 450 test</b><br>Synthetic · deterministic (<b>seed 42</b>)<br>64×64 RGB · 3 classes</div>
+  </div>
+
+  <!-- ===================== OVERVIEW ===================== -->
+  <section class="panel active" id="overview">
+    <div class="kpis">
+      <div class="kpi blue"><div class="v">99.6%</div><div class="l">Final test accuracy</div><div class="s">448 / 450 correct · epoch 15</div></div>
+      <div class="kpi navy"><div class="v">100%</div><div class="l">Final train accuracy</div><div class="s">epoch 15 · full convergence</div></div>
+      <div class="kpi orange"><div class="v">2 / 450</div><div class="l">Test errors</div><div class="s">visually ambiguous edge cases</div></div>
+    </div>
+
+    <h2>Training scorecard</h2>
+    <div class="card">
+      <table>
+        <thead><tr><th>Checkpoint</th><th>Train acc</th><th>Test acc</th><th>Test loss</th></tr></thead>
+        <tbody>
+          <tr><td><b>Epoch 1</b></td><td><span class="pill p-gray">42.5%</span></td><td><span class="pill p-gray">60.9%</span></td><td><span class="pill p-gray">0.877</span></td></tr>
+          <tr><td><b>Epoch 5</b></td><td><span class="pill p-gray">96.5%</span></td><td><span class="pill p-gray">97.3%</span></td><td><span class="pill p-gray">0.097</span></td></tr>
+          <tr><td><b>Epoch 10</b></td><td><span class="pill p-gray">99.9%</span></td><td><span class="pill p-gray">99.8%</span></td><td><span class="pill p-gray">0.0135</span></td></tr>
+          <tr><td><b>Epoch 15</b> <small>(final)</small></td><td><span class="pill p-navy">100.0%</span></td><td><span class="pill p-navy">99.6%</span></td><td><span class="pill p-navy">0.0060</span></td></tr>
+        </tbody>
+      </table>
+      <div class="legend">● navy = final epoch · ● gray = intermediate checkpoints · values from <code>results/metrics.json</code></div>
+    </div>
+
+    <div class="note"><b>Headline finding:</b> a small CNN (three conv blocks, ~540 K parameters, no BatchNorm, no augmentation) reaches 99.6% test accuracy in 15 epochs on a 3-class synthetic shape task — well under a minute on CPU. The two remaining test errors are visually marginal cases that a tired human might also miss, not systematic confusion between classes.</div>
+  </section>
+
+  <!-- ===================== CHARTS ===================== -->
+  <section class="panel" id="charts">
+    <h2>Visual diagnostics</h2>
+    <div class="card"><h3>1 · Dataset — synthetic shapes</h3><div class="cap">Three classes, 800 training and 150 test images per class. Each image is 64×64 RGB with a dark noisy background and a near-white rotated shape.</div><img src="assets/01_samples.png" alt="sample images"></div>
+    <div class="card"><h3>2 · Training dynamics — loss and accuracy curves</h3><div class="cap">Both loss curves drop monotonically and converge to near zero. The test curve tracks the train curve closely — no overfitting bulge anywhere in the 15-epoch run.</div><img src="assets/02_curves.png" alt="training curves"></div>
+    <div class="grid2">
+      <div class="card"><h3>3 · Confusion matrix on the test set</h3><div class="cap">The diagonal is essentially full. With 150 examples per class, 1–2 errors rounds to ≥98.7% per-class precision and recall.</div><img src="assets/03_confusion.png" alt="confusion matrix"></div>
+      <div class="card"><h3>4 · Misclassified samples</h3><div class="cap">Only 2 out of 450 test images are wrong — both are visually ambiguous edge cases, not systematic class confusion.</div><img src="assets/04_misclassified.png" alt="misclassified samples"></div>
+    </div>
+  </section>
+
+  <!-- ===================== VALIDATION ===================== -->
+  <section class="panel" id="validation">
+    <h2>Metric definitions</h2>
+    <div class="card">
+      <h3>Metrics computed</h3>
+      <div class="cap">All metrics are from <code>results/metrics.json</code> as written by <code>python train.py</code>.</div>
+      <table>
+        <thead><tr><th>Metric</th><th>Definition</th><th>Computed how</th></tr></thead>
+        <tbody>
+          <tr><td><b>Train accuracy</b></td><td>correct / total training samples per epoch</td><td>Accumulated over mini-batches during the forward pass</td></tr>
+          <tr><td><b>Test accuracy</b></td><td>correct / 450 per epoch</td><td>Full test-set forward pass with <code>model.eval()</code> + <code>torch.no_grad()</code></td></tr>
+          <tr><td><b>Cross-entropy loss</b></td><td>−(1/n) Σ log p<sub>y</sub> on raw logits</td><td><code>F.cross_entropy</code>, averaged over samples in each batch</td></tr>
+        </tbody>
+      </table>
+      <div class="note" style="margin-top:10px">Per-class precision, recall, and F1 are <b>not stored in <code>results/metrics.json</code></b> — they are visible in the confusion matrix figure (<code>assets/03_confusion.png</code>) but not logged numerically. At 99.6% overall accuracy with only 2 misclassifications, all per-class values are ≥ 98.7%.</div>
+    </div>
+    <div class="card">
+      <h3>Reading the training curves</h3>
+      <div class="cap">Two traces each — train (blue) and test (red) in <code>assets/02_curves.png</code>.</div>
+      <table>
+        <thead><tr><th>Pattern</th><th>What it looks like</th><th>This run</th></tr></thead>
+        <tbody>
+          <tr><td><b>Healthy convergence</b></td><td>Both curves descend monotonically, converge near zero / 1.0</td><td>✓ Observed — train–test gap &lt; 0.5 pp throughout</td></tr>
+          <tr><td><b>Overfitting</b></td><td>Test loss rises while train loss continues to fall</td><td>Not observed</td></tr>
+          <tr><td><b>Underfitting</b></td><td>Both curves plateau far above zero</td><td>Not observed</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h2>Full results</h2>
+    <div class="card">
+      <table>
+        <thead><tr><th>Epoch</th><th>Train acc</th><th>Test acc</th><th>Test loss</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>42.5%</td><td>60.9%</td><td>0.8773</td></tr>
+          <tr><td>2</td><td>62.9%</td><td>70.7%</td><td>0.5432</td></tr>
+          <tr><td>3</td><td>70.9%</td><td>82.9%</td><td>0.4162</td></tr>
+          <tr><td>4</td><td>86.8%</td><td>94.9%</td><td>0.1929</td></tr>
+          <tr><td>5</td><td>96.5%</td><td>97.3%</td><td>0.0971</td></tr>
+          <tr><td>6</td><td>98.7%</td><td>98.9%</td><td>0.0453</td></tr>
+          <tr><td>7</td><td>98.7%</td><td>99.6%</td><td>0.0226</td></tr>
+          <tr><td>8</td><td>99.8%</td><td>99.3%</td><td>0.0206</td></tr>
+          <tr><td>9</td><td>99.9%</td><td>99.8%</td><td>0.0139</td></tr>
+          <tr><td>10</td><td>99.9%</td><td>99.8%</td><td>0.0135</td></tr>
+          <tr><td>11</td><td>100.0%</td><td>99.3%</td><td>0.0125</td></tr>
+          <tr><td>12</td><td>99.8%</td><td>99.8%</td><td>0.0079</td></tr>
+          <tr><td>13</td><td>100.0%</td><td>99.8%</td><td>0.0081</td></tr>
+          <tr><td>14</td><td>100.0%</td><td>99.8%</td><td>0.0060</td></tr>
+          <tr><td><b>15</b></td><td><b>100.0%</b></td><td><b>99.6%</b></td><td><b>0.0060</b></td></tr>
+        </tbody>
+      </table>
+      <div class="legend">Exact values from <code>results/metrics.json</code>. Train acc beyond epoch 14 is already 100%; per-class P/R/F1 are not stored numerically — see <code>assets/03_confusion.png</code>.</div>
+    </div>
+  </section>
+
+  <!-- ===================== REPRODUCE ===================== -->
+  <section class="panel" id="reproduce">
+    <h2>Run it yourself</h2>
+    <div class="card">
+      <pre><span class="c"># 1. environment</span>
+python3 -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install -r requirements.txt
+
+<span class="c"># 2. generate the synthetic dataset (deterministic, seed 42)</span>
+python generate_data.py
+
+<span class="c"># 3. train the CNN, evaluate, and render the dashboard figures</span>
+python train.py</pre>
+      <div class="cap" style="margin-top:10px">Produces the four PNGs in <code>assets/</code> and the metric summary in <code>results/metrics.json</code>. Total wall-time: ~30–60 seconds on a modern CPU.</div>
+    </div>
+    <h2>Tweak the difficulty</h2>
+    <div class="card">
+      <pre>DataConfig(
+    image_size=64,
+    n_per_class_train=800,    <span class="c"># training set size per class</span>
+    n_per_class_test=150,
+    bg_noise_std=6.0,         <span class="c"># raise to ~25 to make the task harder</span>
+    shape_size_min=0.30,      <span class="c"># smaller shapes = harder</span>
+    shape_size_max=0.50,
+    seed=42,
+)</pre>
+      <div class="cap" style="margin-top:10px">To make the task genuinely difficult, raise <code>bg_noise_std</code> to ~25, drop <code>shape_size_min</code> to 0.10, and widen rotation range. The same architecture will then need BatchNorm, dropout, and augmentation to recover.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+  document.querySelectorAll('.sidebar nav a').forEach(function(a){
+    a.addEventListener('click',function(){
+      document.querySelectorAll('.sidebar nav a').forEach(function(x){x.classList.remove('active')});
+      document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+      a.classList.add('active');
+      document.getElementById(a.dataset.p).classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+</script>
+</body>
+</html>
